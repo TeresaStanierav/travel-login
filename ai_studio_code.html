@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>寰宇之旅 - 开启您的探索之旅</title>
+    <!-- 引入图标库 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* --- CSS 样式部分 --- */
+        :root {
+            --primary-color: #2a9d8f;      /* 森林绿 */
+            --secondary-color: #f4a261;    /* 沙漠橙 */
+            --accent-color: #e76f51;       /* 晚霞红 */
+            --glass-bg: rgba(255, 255, 255, 0.85);
+            --text-dark: #264653;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+        }
+
+        body {
+            /* 旅游主题背景图 */
+            background: url('https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80') center/cover no-repeat fixed;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        /* 主容器 */
+        .main-container {
+            width: 1000px;
+            max-width: 100%;
+            height: 650px;
+            display: flex;
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border-radius: 24px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+            overflow: hidden;
+            transition: all 0.5s ease;
+        }
+
+        /* 左侧：推荐与展示区 */
+        .display-side {
+            flex: 1.2;
+            background: linear-gradient(135deg, rgba(42, 157, 143, 0.9), rgba(38, 70, 83, 0.9));
+            padding: 40px;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .display-side h1 { font-size: 2.2rem; margin-bottom: 10px; }
+        .display-side p { opacity: 0.9; line-height: 1.6; }
+
+        .recommend-box { margin-top: 30px; }
+        .recommend-title { font-weight: bold; margin-bottom: 15px; display: flex; align-items: center; }
+        .recommend-title i { margin-right: 10px; color: var(--secondary-color); }
+
+        .dest-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        .dest-item {
+            background: rgba(255,255,255,0.1);
+            padding: 10px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: 0.3s;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .dest-item:hover { background: rgba(255,255,255,0.2); transform: translateY(-3px); }
+        .dest-item img { width: 100%; height: 80px; object-fit: cover; border-radius: 8px; margin-bottom: 5px; }
+        .dest-item span { font-size: 0.9rem; }
+
+        .benefit-tag {
+            display: inline-block;
+            background: var(--secondary-color);
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            margin-top: 20px;
+        }
+
+        /* 右侧：登录表单区 */
+        .form-side {
+            flex: 1;
+            padding: 40px;
+            background: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .form-header { text-align: center; margin-bottom: 30px; }
+        .form-header h2 { color: var(--text-dark); font-size: 1.8rem; }
+
+        .input-group { position: relative; margin-bottom: 20px; }
+        .input-group i { position: absolute; left: 15px; top: 15px; color: #aaa; }
+        .input-group input {
+            width: 100%;
+            padding: 14px 15px 14px 45px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: 0.3s;
+        }
+        .input-group input:focus { border-color: var(--primary-color); box-shadow: 0 0 0 3px rgba(42, 157, 143, 0.1); outline: none; }
+
+        /* 密码显示隐藏 */
+        .toggle-password { position: absolute; right: 15px; top: 15px; cursor: pointer; color: #aaa; }
+
+        /* 密码强度条 */
+        .strength-meter {
+            height: 4px;
+            background: #eee;
+            margin-top: 8px;
+            border-radius: 2px;
+            overflow: hidden;
+        }
+        #strength-bar { width: 0%; height: 100%; transition: 0.3s; background: #ff4d4d; }
+
+        .error-hint { color: #e76f51; font-size: 0.8rem; margin-top: 5px; display: none; }
+
+        .options-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.9rem;
+            margin-bottom: 25px;
+            color: #666;
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 14px;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .login-btn:hover { background: #21867a; transform: translateY(-2px); }
+        .login-btn:disabled { background: #ccc; cursor: not-allowed; }
+
+        /* 加载动画 */
+        .loader {
+            width: 20px;
+            height: 20px;
+            border: 3px solid #FFF;
+            border-bottom-color: transparent;
+            border-radius: 50%;
+            display: none;
+            animation: rotation 1s linear infinite;
+            margin-left: 10px;
+        }
+
+        @keyframes rotation { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* 社交登录 */
+        .social-divider {
+            margin: 25px 0;
+            text-align: center;
+            position: relative;
+        }
+        .social-divider::before {
+            content: "";
+            position: absolute;
+            top: 50%; left: 0; width: 100%;
+            height: 1px; background: #eee;
+            z-index: 1;
+        }
+        .social-divider span {
+            background: white;
+            padding: 0 15px;
+            color: #999;
+            font-size: 0.85rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        .social-icons { display: flex; justify-content: center; gap: 20px; }
+        .social-icons a {
+            width: 45px; height: 45px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            border: 1px solid #eee;
+            color: #555;
+            text-decoration: none;
+            transition: 0.3s;
+        }
+        .social-icons a:hover { background: #f8f8f8; color: var(--primary-color); border-color: var(--primary-color); }
+
+        .reg-guide { text-align: center; margin-top: 25px; font-size: 0.9rem; color: #666; }
+        .reg-guide a { color: var(--primary-color); text-decoration: none; font-weight: bold; }
+
+        /* 响应式适配 */
+        @media (max-width: 850px) {
+            .display-side { display: none; }
+            .main-container { width: 450px; height: auto; }
+        }
+
+        @media (max-width: 480px) {
+            .main-container { width: 100%; border-radius: 15px; }
+            .form-side { padding: 30px 20px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="main-container">
+        <!-- 左侧展示区 -->
+        <div class="display-side">
+            <div>
+                <h1>寰宇之旅</h1>
+                <p>探索大自然的奇迹，在每一个目的地遇见未知的自己。登录您的账号，开启下一段定制行程。</p>
+                
+                <div class="recommend-box">
+                    <div class="recommend-title">
+                        <i class="fas fa-map-marked-alt"></i> 热门目的地推荐
+                    </div>
+                    <div class="dest-grid">
+                        <div class="dest-item">
+                            <img src="https://images.unsplash.com/photo-1528127269322-539801943592?w=200" alt="京都">
+                            <span>日本 · 京都</span>
+                        </div>
+                        <div class="dest-item">
+                            <img src="https://images.unsplash.com/photo-1533105079780-92b9be482077?w=200" alt="圣托里尼">
+                            <span>希腊 · 圣托里尼</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <div class="benefit-tag"><i class="fas fa-crown"></i> 会员权益：预订享双倍积分</div>
+                <p style="margin-top: 15px; font-size: 0.85rem;">热门路线快速入口：川西小环线 | 冰岛环岛游</p>
+            </div>
+        </div>
+
+        <!-- 右侧表单区 -->
+        <div class="form-side">
+            <div class="form-header">
+                <h2>欢迎孔得荣回来</h2>
+                <p style="color: #888; font-size: 0.9rem; margin-top: 5px;">让旅行从这里开始</p>
+            </div>
+
+            <form id="loginForm">
+                <!-- 用户名/邮箱 -->
+                <div class="input-group">
+                    <i class="fas fa-user"></i>
+                    <input type="text" id="account" placeholder="邮箱 / 手机号 / 用户名" required>
+                    <div id="userError" class="error-hint">请输入有效的账号信息</div>
+                </div>
+
+                <!-- 密码 -->
+                <div class="input-group">
+                    <i class="fas fa-lock"></i>
+                    <input type="password" id="password" placeholder="请输入密码" required>
+                    <i class="fas fa-eye-slash toggle-password" id="eyeIcon"></i>
+                    <div class="strength-meter">
+                        <div id="strength-bar"></div>
+                    </div>
+                    <div id="passError" class="error-hint">密码至少需要6位字符</div>
+                </div>
+
+                <!-- 选项层 -->
+                <div class="options-row">
+                    <label style="display: flex; align-items: center; cursor: pointer;">
+                        <input type="checkbox" style="margin-right: 5px;"> 记住我
+                    </label>
+                    <a href="#" style="color: var(--primary-color); text-decoration: none;">忘记密码？</a>
+                </div>
+
+                <!-- 登录按钮 -->
+                <button type="submit" class="login-btn" id="submitBtn">
+                    <span>立即登录</span>
+                    <div class="loader" id="loginLoader"></div>
+                </button>
+            </form>
+
+            <!-- 社交登录 -->
+            <div class="social-divider">
+                <span>快速登录</span>
+            </div>
+            <div class="social-icons">
+                <a href="#" title="微信"><i class="fab fa-weixin"></i></a>
+                <a href="#" title="QQ"><i class="fab fa-qq"></i></a>
+                <a href="#" title="微博"><i class="fab fa-weibo"></i></a>
+            </div>
+
+            <!-- 注册引导 -->
+            <div class="reg-guide">
+                还没有账号？ <a href="#">立即注册</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        /* --- JavaScript 交互逻辑部分 --- */
+        document.addEventListener('DOMContentLoaded', () => {
+            const loginForm = document.getElementById('loginForm');
+            const passwordInput = document.getElementById('password');
+            const eyeIcon = document.getElementById('eyeIcon');
+            const strengthBar = document.getElementById('strength-bar');
+            const submitBtn = document.getElementById('submitBtn');
+            const loader = document.getElementById('loginLoader');
+
+            let failedAttempts = 0; // 登录尝试次数
+
+            // 1. 切换密码显示状态
+            eyeIcon.addEventListener('click', () => {
+                const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+                passwordInput.setAttribute('type', type);
+                eyeIcon.classList.toggle('fa-eye');
+                eyeIcon.classList.toggle('fa-eye-slash');
+            });
+
+            // 2. 实时密码强度检测逻辑
+            passwordInput.addEventListener('input', (e) => {
+                const val = e.target.value;
+                let strength = 0;
+
+                if (val.length >= 6) strength += 30;
+                if (/[A-Z]/.test(val)) strength += 35;
+                if (/[0-9]/.test(val)) strength += 35;
+
+                strengthBar.style.width = strength + '%';
+                
+                // 颜色变化
+                if (strength < 40) strengthBar.style.background = '#ff4d4d';
+                else if (strength < 80) strengthBar.style.background = '#f4a261';
+                else strengthBar.style.background = '#2a9d8f';
+
+                // 错误提示控制
+                document.getElementById('passError').style.display = val.length < 6 && val.length > 0 ? 'block' : 'none';
+            });
+
+            // 3. 核心表单提交处理
+            loginForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+
+                // 防暴力破解机制
+                if (failedAttempts >= 3) {
+                    alert('安全提示：登录失败次数过多，请15分钟后再试。');
+                    return;
+                }
+
+                const account = document.getElementById('account').value;
+                const pass = passwordInput.value;
+
+                // 简单的防SQL注入模拟过滤 (前端清理)
+                const sanitizedAccount = account.replace(/['";--]/g, "");
+
+                // 触发加载动画
+                submitBtn.disabled = true;
+                submitBtn.querySelector('span').innerText = '验证中...';
+                loader.style.display = 'inline-block';
+
+                // 模拟网络请求延迟
+                setTimeout(() => {
+                    // 演示验证逻辑 (账号: admin@travel.com / 密码: Admin123)
+                    if (sanitizedAccount === 'admin@travel.com' && pass === 'Admin123') {
+                        alert('登录成功！欢迎回到寰宇之旅。');
+                        window.location.reload(); 
+                    } else {
+                        failedAttempts++;
+                        alert(`登录失败！账号或密码错误。剩余尝试次数: ${3 - failedAttempts}`);
+                        
+                        // 恢复按钮状态
+                        submitBtn.disabled = false;
+                        submitBtn.querySelector('span').innerText = '立即登录';
+                        loader.style.display = 'none';
+                    }
+                }, 1500);
+            });
+
+            // 4. 社交图标点击模拟
+            document.querySelectorAll('.social-icons a').forEach(icon => {
+                icon.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    alert('正在调起第三方授权登录...');
+                });
+            });
+        });
+    </script>
+</body>
+</html>
